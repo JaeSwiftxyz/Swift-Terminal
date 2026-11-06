@@ -9,6 +9,8 @@ import * as ecb from "../providers/ecb.js";
 import * as tradingview from "../providers/tradingview.js";
 import * as coingecko from "../providers/coingecko.js";
 import * as binance from "../providers/binance.js";
+import * as coinbase from "../providers/coinbase.js";
+import * as kraken from "../providers/kraken.js";
 import * as news from "../providers/news.js";
 import * as econcalendar from "../providers/econcalendar.js";
 import * as finra from "../providers/finra.js";
@@ -126,7 +128,15 @@ async function getQuotes(symbols: string[]): Promise<yahoo.Quote[]> {
 
   const cryptoSymbols = remaining.filter((s) => binance.CRYPTO_SYMBOLS.has(s));
   if (cryptoSymbols.length > 0) {
-    const results = await Promise.allSettled(cryptoSymbols.map((s) => binance.quote(s)));
+    const results = await Promise.allSettled(
+      cryptoSymbols.map((s) =>
+        withFallback([
+          ["binance", () => binance.quote(s)],
+          ["coinbase", () => coinbase.quote(s)],
+          ["kraken", () => kraken.quote(s)],
+        ])
+      )
+    );
     results.forEach((r, i) => {
       if (r.status === "fulfilled") fetched.set(cryptoSymbols[i], r.value);
     });
@@ -230,12 +240,19 @@ marketRouter.get("/quotes", async (req, res) => {
 marketRouter.get("/history/:symbol", async (req, res) => {
   const symbol = req.params.symbol.toUpperCase();
   const rangeKey = String(req.query.range ?? "6M");
+  const intraday = rangeKey === "1D" || rangeKey === "5D"; // nasdaq serves daily bars only, so yahoo leads here
   try {
     const data = await cached(`history:${symbol}:${rangeKey}`, HISTORY_TTL, () =>
       binance.CRYPTO_SYMBOLS.has(symbol)
         ? binance.history(symbol, rangeKey)
         : isVix(symbol)
         ? vixHistory(rangeKey)
+        : intraday
+        ? withFallback([
+            ["yahoo", () => yahoo.history(symbol, yahooRange(rangeKey).range, yahooRange(rangeKey).interval)],
+            ["nasdaq", () => nasdaq.history(symbol, rangeKey)],
+            ["stooq", () => stooq.history(symbol)],
+          ])
         : withFallback([
             ["nasdaq", () => nasdaq.history(symbol, rangeKey)],
             ["yahoo", () => yahoo.history(symbol, yahooRange(rangeKey).range, yahooRange(rangeKey).interval)],
@@ -275,7 +292,10 @@ marketRouter.get("/search", async (req, res) => {
         ["yahoo", () => yahoo.search(q)],
       ])
     );
-    res.json(data);
+    // Crypto tickers first: the equity searches never list the coins themselves.
+    const crypto = binance.searchCrypto(q);
+    const seen = new Set(crypto.map((c) => c.symbol));
+    res.json([...crypto, ...(data as Array<{ symbol: string }>).filter((r) => !seen.has(r.symbol))]);
   } catch (err) {
     fail(req, res, err);
   }

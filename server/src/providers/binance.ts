@@ -10,6 +10,24 @@ const NAMES: Record<string, string> = {
 /** Plain tickers (BTC, ETH, ...) this app treats as crypto for routing quotes/history. */
 export const CRYPTO_SYMBOLS = new Set(Object.keys(NAMES).map((s) => s.replace("USDT", "")));
 
+/** Display name for a plain crypto ticker (BTC -> Bitcoin), when known. */
+export function nameFor(symbol: string): string | undefined {
+  return NAMES[symbol.toUpperCase() + "USDT"];
+}
+
+/** Synthesized crypto rows for the search palette (no network). */
+export function searchCrypto(q: string): Array<{ symbol: string; name: string; exchange: string; type: string }> {
+  const needle = q.trim().toUpperCase();
+  if (!needle) return [];
+  const out: Array<{ symbol: string; name: string; exchange: string; type: string }> = [];
+  for (const [pair, name] of Object.entries(NAMES)) {
+    if (pair.startsWith(needle) || name.toUpperCase().includes(needle)) {
+      out.push({ symbol: pair.replace("USDT", ""), name, exchange: "CRYPTO", type: "crypto" });
+    }
+  }
+  return out.slice(0, 6);
+}
+
 /** Fallback crypto board built from Binance public 24hr tickers (no key required). */
 export async function markets(): Promise<CryptoRow[]> {
   const symbols = Object.keys(NAMES);
