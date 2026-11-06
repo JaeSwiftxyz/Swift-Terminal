@@ -41,7 +41,7 @@ Every data endpoint sits behind an automatic fallback chain, so a single provide
 ## Quick start
 
 ```sh
-git clone https://github.com/JaeSwiftxyz/swift-terminal.git
+git clone https://github.com/JaeSwiftxyz/Swift-Terminal.git
 cd swift-terminal
 cp .env.example .env   # optional — needed only for the AI assistant
 docker compose up --build
