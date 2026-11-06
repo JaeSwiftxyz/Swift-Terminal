@@ -88,12 +88,14 @@ By default the UI is served under the path `/tools/terminal` (matching the deplo
 | --- | --- | --- |
 | Quotes (stocks/ETFs) | Nasdaq public quote API | Yahoo Finance → Stooq |
 | Fundamentals | TradingView scanner API | — |
-| Historical candles | Nasdaq chart API | Yahoo Finance → Stooq |
-| Symbol search | TradingView | Yahoo Finance |
+| Historical candles | Nasdaq chart API (daily) · Yahoo Finance (intraday 1D/5D) | Stooq |
+| Symbol search | TradingView + built-in crypto tickers | Yahoo Finance |
 | Screener / heatmap | TradingView scanner API | — |
 | Options chain | Nasdaq | Yahoo Finance |
 | News | Yahoo Finance RSS | Google News RSS |
-| Crypto | CoinGecko | Binance public API |
+| Crypto quotes | Binance public API | Coinbase → Kraken |
+| Crypto board | CoinGecko | Binance public API |
+| Crypto candles / orderbook | Binance public API | — |
 | Macro | FRED | — |
 | Calendar | Forex Factory | FRED (actuals) |
 
