@@ -8,7 +8,7 @@ const LLM_API_URL = (process.env.LLM_API_URL ?? "https://api.venice.ai/api/v1").
 const LLM_API_KEY = process.env.LLM_API_KEY ?? "";
 const LLM_MODEL = process.env.LLM_MODEL ?? "claude-haiku-5-5";
 
-const SYSTEM = `You are the AI assistant inside OpenTerminal, a Bloomberg-style financial terminal.
+const SYSTEM = `You are the AI assistant inside Swift Terminal, a Bloomberg-style financial terminal.
 You help the user interpret market data, charts, news, options chains and macro indicators.
 Answer concisely and professionally, in the language the user writes in.
 When market data is provided in the conversation as JSON context, ground your answer in it.

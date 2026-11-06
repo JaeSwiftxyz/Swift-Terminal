@@ -47,7 +47,7 @@ cp .env.example .env   # optional — needed only for the AI assistant
 docker compose up --build
 ```
 
-- Web UI → **http://localhost:3000**
+- Web UI → **http://localhost:3000/tools/terminal/**
 - API health → **http://localhost:4000/api/status**
 
 A `.env` file is not required to get a fully working terminal.
@@ -74,7 +74,7 @@ Without a key the assistant politely reports itself unavailable; everything else
 | `TRUST_PROXY` | Set to `1` when exactly one trusted reverse proxy sets `X-Forwarded-For`. |
 | `LLM_API_URL` / `LLM_API_KEY` / `LLM_MODEL` | Optional AI assistant (OpenAI-compatible). |
 
-By default the UI is served under the path `/tools/terminal` (matching the deployment it was built for). To serve at the domain root, change `basePath` in `web/next.config.ts` and the fetch prefix in `web/lib/api.ts`, then rebuild.
+By default the UI is served under the path `/tools/terminal` (matching the deployment it was built for), so the bare host root 404s by design. To serve at the domain root, change `basePath` in `web/next.config.ts` and the fetch prefix in `web/lib/api.ts`, then rebuild.
 
 ## How it works
 
